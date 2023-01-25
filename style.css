@@ -1,0 +1,269 @@
+html,
+body,
+div,
+span,
+applet,
+object,
+iframe,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote,
+pre,
+a,
+abbr,
+acronym,
+address,
+big,
+cite,
+code,
+del,
+dfn,
+em,
+img,
+ins,
+kbd,
+q,
+s,
+samp,
+small,
+strike,
+strong,
+sub,
+sup,
+tt,
+var,
+b,
+u,
+i,
+center,
+dl,
+dt,
+dd,
+ol,
+ul,
+li,
+fieldset,
+form,
+label,
+legend,
+table,
+caption,
+tbody,
+tfoot,
+thead,
+tr,
+th,
+td,
+article,
+aside,
+canvas,
+details,
+embed,
+figure,
+figcaption,
+footer,
+header,
+hgroup,
+menu,
+nav,
+output,
+ruby,
+section,
+summary,
+time,
+mark,
+audio,
+video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+menu,
+nav,
+section {
+  display: block;
+}
+body {
+  line-height: 1;
+}
+ol,
+ul {
+  list-style: none;
+}
+blockquote,
+q {
+  quotes: none;
+}
+blockquote:before,
+blockquote:after,
+q:before,
+q:after {
+  content: "";
+  content: none;
+}
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+@font-face {
+  font-family: "Varela Round";
+  src: url("font/Varela_Round/VarelaRound-Regular.ttf");
+}
+html {
+  box-sizing: border-box;
+  height: 100vh;
+}
+:root {
+  --bg-color: #53a2be;
+  --secondary-color: #86bbd8;
+  --font-color: #231C07;
+  --main-font: "Varela Round", sans-serif;
+}
+body {
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+
+  height: 100%;
+  background-color: var(--bg-color);
+
+  font-family: var(--main-font);
+  font-size: 3rem;
+  color: var(--font-color)
+}
+.title {
+  font-size: 6rem;
+  margin-bottom: 3rem;
+  margin-top: 4rem;
+  font-weight: bold;
+}
+.content {
+  flex: 1 0 auto;
+}
+footer {
+	font-size: 1.5rem;
+	margin-top: 2rem;
+}
+footer img {
+	width: 1.5rem;
+	height: auto;
+}
+a {
+	text-decoration: none;
+}
+a:link, a:visited {
+	color: inherit;
+}
+/* --- menu --- */
+#menu {
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+  gap: 4rem;
+}
+.card-container {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 4rem;
+}
+.player-card {
+  width: 25rem;
+  height: 25rem;
+  padding: 2rem;
+
+  background-color: var(--secondary-color);
+  border-radius: 2.5rem;
+
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+  justify-content: space-between;
+}
+.player-card > img {
+  height: 80%;
+  width: auto;
+}
+/*--- ingame ---*/
+#in-game {
+  display: none;
+  flex-flow: column nowrap;
+  align-items: center;
+  justify-content: space-between;
+}
+#game-board {
+  display: grid;
+  grid-template-columns: repeat(3, 10rem);
+  grid-template-rows: repeat(3, 10rem);
+  gap: 0.5rem;
+
+  background-color: var(--font-color);
+}
+.tile {
+  background-color: var(--secondary-color);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  font-weight: bold;
+  font-size: 4rem;
+}
+#restart-button {
+  visibility: hidden;
+}
+#result {
+	height: 3rem;
+}
+.btn-container {
+	width: 100%;
+	display: flex;
+	flex-flow: row nowrap;
+	justify-content: space-around;
+}
+button {
+	appearance: none;
+	font-size: 2rem;
+
+	width: 8rem;
+	height: 3.5rem;
+
+	border: 0.25rem solid var(--font-color);
+	outline: none;
+
+	border-radius: 0.5rem;
+}
+
+#return-button {
+	background-color: #B5B2C2;
+}
+#restart-button {
+	background-color: #FFD791;
+}
+/* --- effects --- */
+.scale, .tile {
+	transition: all 0.4s ease-in-out;
+}
+.tile:hover {
+	background-color: #0E7C7B;
+}
+.scale:hover {
+	transform: scale(1.1);
+	transition: all 0.4s ease-in-out;
+}
