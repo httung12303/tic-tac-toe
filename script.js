@@ -1,23 +1,80 @@
 const gameManager = (function () {
-  let currentPlayer = null;
-  let players = null;
+  const menuDisplay = (function () {
+    const menu = document.getElementById("menu");
+    const playerCards = Array.from(document.querySelectorAll(".player-card"));
+    const addTransitionHandler = function (func) {
+      playerCards.forEach((card) => card.addEventListener("click", func));
+    };
+    const hideMenuDisplay = () => (menu.style.display = "none");
+    const showMenuDisplay = () => (menu.style.display = "flex");
+    return {
+      hideMenuDisplay,
+      showMenuDisplay,
+      addTransitionHandler,
+    };
+  })();
 
-  const displayController = (function () {
+  const inGameDisplay = (function () {
+    const inGame = document.getElementById("in-game");
+    const resultElement = document.getElementById("result");
+    const restartButton = document.getElementById("restart-button");
+    const returnButton = document.getElementById("return-button");
+    let onClick = null;
     const tiles = [];
-    const init = function() {
-        const boardElement = document.querySelector("#gameBoard");
-        for (let i = 0; i < 9; i++) {
-          const tile = document.createElement("div");
-          tile.classList.add("tile");
-          tile.setAttribute("data-index", i);
-          boardElement.appendChild(tile);
-          tiles.push(tile);
-        }
+    const init = function () {
+      const boardElement = document.querySelector("#game-board");
+      for (let i = 0; i < 9; i++) {
+        const tile = document.createElement("div");
+        tile.classList.add("tile");
+        tile.setAttribute("data-index", i);
+        boardElement.appendChild(tile);
+        tiles.push(tile);
+      }
     };
     const markTile = function (marker, index) {
       tiles[index].textContent = marker;
     };
-    return { init, markTile };
+    const announceResult = function (player) {
+      resultElement.textContent =
+        player === null ? "It's a draw!" : `${player} won!`;
+    };
+    const reset = function () {
+      for (let i = 0; i < 9; i++) {
+        tiles[i].textContent = "";
+      }
+      resultElement.textContent = "";
+      restartButton.style.visibility = "hidden";
+    };
+    const showRestartButton = function () {
+      restartButton.style.visibility = "visible";
+    };
+    const addResetHandler = function (func) {
+      restartButton.addEventListener("click", func);
+    };
+    const addTransitionHandler = function (func) {
+      returnButton.addEventListener("click", func);
+    };
+    const addOnClickHandler = function (func) {
+      tiles.forEach(tile => tile.addEventListener("click", func));
+    };
+    const removeOnClickHandler = function (func) {
+      tiles.forEach(tile => tile.removeEventListener("click", func));
+    };
+    const hideInGameDisplay = () => (inGame.style.display = "none");
+    const showInGameDisplay = () => (inGame.style.display = "flex");
+    return {
+      init,
+      markTile,
+      announceResult,
+      reset,
+      showRestartButton,
+      addResetHandler,
+      hideInGameDisplay,
+      showInGameDisplay,
+      addTransitionHandler,
+      addOnClickHandler,
+      removeOnClickHandler,
+    };
   })();
 
   const gameBoard = (function () {
@@ -29,69 +86,140 @@ const gameManager = (function () {
     };
     const markTile = function (marker, index) {
       tiles[index] = marker;
-      console.log(tiles);
     };
-    const getTile = function(index) {
-        return tiles[index];
-    }
-    const rowCheck = function (row) {
-        console.log(row);
-        return tiles[row * 3] === tiles[row * 3 + 1] && tiles[row * 3] === tiles[row * 3 + 2];
-    }
-    const columnCheck = function (column) {
-        return tiles[column * 3] === tiles[column + 3] && tiles[column] === tiles[column + 6];
-    }
-    const diagonalCheck = function(row, column) {
-        let result = false;
-        if(row === column) {
-            result = (tiles[0] === tiles[4]) && (tiles[0] === tiles[8]);
-        }
-        if(row + column === 2) {
-            result = result || ((tiles[2] === tiles[4]) && (tiles[2] === tiles[6]));
-        }
-        return result;
-    }
-    const check = function (index) {
-        const row = Math.floor(index / 3);
-        const column = index % 3;
-        return  rowCheck(row) || columnCheck(column) || diagonalCheck(row, column); 
+    const getTile = function (index) {
+      return tiles[index];
     };
-    return { init, markTile, getTile, check };
+    const getTiles = () => tiles;
+    const lines = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6],
+    ];
+    const check = function () {
+      for (let line of lines) {
+        if (
+          tiles[line[0]] !== "" &&
+          tiles[line[0]] === tiles[line[1]] &&
+          tiles[line[1]] === tiles[line[2]]
+        )
+          return true;
+      }
+      return false;
+    };
+    const draw = function () {
+      for (let tile of tiles) {
+        if (tile === "") {
+          return false;
+        }
+      }
+      return true;
+    };
+    const reset = function () {
+      for (let i = 0; i < 9; i++) {
+        tiles[i] = "";
+      }
+    };
+    return { init, markTile, getTile, getTiles, check, reset, draw };
   })();
 
-  const Player = function (name, marker) {
+  const NormalPlayer = function (name, marker, AI) {
     const getMarker = () => marker;
     const getName = () => name;
-    return { getMarker, getName };
+    const isAI = () => AI;
+    return { getMarker, getName, isAI };
   };
 
-  const createPlayers = function() {
-    players = [];
-    players.push(Player('X', 'X'));
-    players.push(Player('O', 'O'));
-    currentPlayer = players[0];
-  }
+  const AIPlayer = function (name, marker, AI) {
+    const { getMarker, getName, isAI } = NormalPlayer(name, marker, AI);
+    const markTile = (tiles) => {
+      let index = 0;
+      while (tiles[index] !== "") {
+        index = Math.floor(Math.random() * 9);
+      }
+      return index;
+    };
+    return { getMarker, getName, isAI, markTile };
+  };
 
-  const tileOnClick = function(e) {
-    const target = e.target;
-    const index = target.getAttribute('data-index');
-    if(!target.classList.contains('tile') || gameBoard.getTile(index) !== '') {
-        return;
-    }
+  const PlayerFactory = function (name, marker, isAI) {
+    return isAI
+      ? AIPlayer(name, marker, isAI)
+      : NormalPlayer(name, marker, isAI);
+  };
+
+  const DEFAULT_PLAYER = PlayerFactory("X", "X", false);
+  let OPTIONAL_PLAYER = null;
+  let currentPlayer = DEFAULT_PLAYER;
+
+  const createOptionalPlayer = function (option) {
+    OPTIONAL_PLAYER = PlayerFactory("O", "O", option === "AI");
+    currentPlayer = DEFAULT_PLAYER;
+  };
+
+  const changeCurrentPlayer = function () {
+    currentPlayer =
+      currentPlayer === DEFAULT_PLAYER ? OPTIONAL_PLAYER : DEFAULT_PLAYER;
+  };
+
+  const markTile = function (index) {
     gameBoard.markTile(currentPlayer.getMarker(), index);
-    displayController.markTile(currentPlayer.getMarker(), index);
-    if(gameBoard.check(index)) {
-        document.getElementById('gameResult').textContent = currentPlayer.getName();
+    inGameDisplay.markTile(currentPlayer.getMarker(), index);
+    if (gameBoard.check() || gameBoard.draw()) {
+      inGameDisplay.announceResult(
+        gameBoard.draw() ? null : currentPlayer.getName()
+      );
+      inGameDisplay.showRestartButton();
+      inGameDisplay.removeOnClickHandler(tileOnClick);
+      return;
     }
-    currentPlayer = currentPlayer === players[0] ? players[1] : players[0];
-    e.stopPropagation();
-  }
+    changeCurrentPlayer();
+    if (currentPlayer.isAI()) {
+      const index = currentPlayer.markTile(gameBoard.getTiles());
+      markTile(index);
+    }
+  };
 
-  const init = function() {
+  const reset = function () {
+    inGameDisplay.reset();
+    gameBoard.reset();
+    inGameDisplay.addOnClickHandler(tileOnClick);
+    currentPlayer = DEFAULT_PLAYER;
+  };
+
+  const tileOnClick = function (e) {
+    const index = this.getAttribute("data-index");
+    if (gameBoard.getTile(index) !== "") {
+      return;
+    }
+    e.stopPropagation();
+    markTile(index);
+  };
+
+  const playerCardOnClick = function () {
+    menuDisplay.hideMenuDisplay();
+    inGameDisplay.showInGameDisplay();
+    createOptionalPlayer(this.getAttribute("data-type"));
+  };
+
+  const returnBtnOnClick = function () {
+    reset();
+    menuDisplay.showMenuDisplay();
+    inGameDisplay.hideInGameDisplay();
+  };
+
+  const init = function () {
     gameBoard.init();
-    displayController.init();
-    createPlayers();
-    window.addEventListener('click', tileOnClick);
-  }
+    inGameDisplay.init();
+    menuDisplay.addTransitionHandler(playerCardOnClick);
+    inGameDisplay.addResetHandler(reset);
+    inGameDisplay.addTransitionHandler(returnBtnOnClick);
+    inGameDisplay.addOnClickHandler(tileOnClick);
+  };
   init();
 })();
