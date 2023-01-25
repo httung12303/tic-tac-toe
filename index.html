@@ -1,12 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-</head>
-<body>
-    
-</body>
+    <link rel="stylesheet" href="style.css" />
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <header class="title">Tic-Tac-Toe</header>
+    <div class="content" id="menu">
+      Choose your opponent
+      <div class="card-container">
+        <div class="player-card scale" data-type="human">
+          <img src="img/human.png" alt="" />
+          <div class="type">Human</div>
+        </div>
+        <div class="player-card scale" data-type="AI">
+          <img src="img/ai.png" alt="" />
+          <div class="type">AI</div>
+        </div>
+      </div>
+    </div>
+    <div class="content" id="in-game">
+      <div id="result"></div>
+      <div id="game-board"></div>
+      <div class="btn-container">
+        <button id="return-button" class="scale">Return</button>
+        <button id="restart-button" class="scale">Replay</button>
+      </div>
+    </div>
+    <footer>
+      Created by
+      <a href="https://github.com/httung12303"
+        >httung120303 <img src="img/github.png" class="scale"
+      /></a>
+      | <a href="https://github.com/httung12303/tic-tac-toe">Source</a>
+    </footer>
+  </body>
 </html>
