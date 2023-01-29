@@ -7,10 +7,18 @@ const gameManager = (function () {
     };
     const hideMenuDisplay = () => (menu.style.display = "none");
     const showMenuDisplay = () => (menu.style.display = "flex");
+    const getDifficulty = function() {
+      return document.querySelector("input[type='radio'][name='difficulty']:checked").value;
+    }
+    const getMarker = function () {
+      return document.querySelector("input[type='radio'][name='marker']:checked").value;
+    }
     return {
       hideMenuDisplay,
       showMenuDisplay,
       addTransitionHandler,
+      getDifficulty,
+      getMarker,
     };
   })();
 
@@ -39,11 +47,11 @@ const gameManager = (function () {
         player === null ? "It's a draw!" : `${player} won!`;
     };
     const reset = function () {
+      restartButton.style.visibility = "hidden";
+      resultElement.textContent = "";
       for (let i = 0; i < 9; i++) {
         tiles[i].textContent = "";
       }
-      resultElement.textContent = "";
-      restartButton.style.visibility = "hidden";
     };
     const showRestartButton = function () {
       restartButton.style.visibility = "visible";
@@ -55,10 +63,10 @@ const gameManager = (function () {
       returnButton.addEventListener("click", func);
     };
     const addOnClickHandler = function (func) {
-      tiles.forEach(tile => tile.addEventListener("click", func));
+      tiles.forEach((tile) => tile.addEventListener("click", func));
     };
     const removeOnClickHandler = function (func) {
-      tiles.forEach(tile => tile.removeEventListener("click", func));
+      tiles.forEach((tile) => tile.removeEventListener("click", func));
     };
     const hideInGameDisplay = () => (inGame.style.display = "none");
     const showInGameDisplay = () => (inGame.style.display = "flex");
@@ -87,6 +95,9 @@ const gameManager = (function () {
     const markTile = function (marker, index) {
       tiles[index] = marker;
     };
+    const unMark = function (index) {
+      tiles[index] = "";
+    };
     const getTile = function (index) {
       return tiles[index];
     };
@@ -103,14 +114,15 @@ const gameManager = (function () {
     ];
     const check = function () {
       for (let line of lines) {
+        const marker = tiles[line[0]];
         if (
           tiles[line[0]] !== "" &&
           tiles[line[0]] === tiles[line[1]] &&
           tiles[line[1]] === tiles[line[2]]
         )
-          return true;
+          return marker;
       }
-      return false;
+      return null;
     };
     const draw = function () {
       for (let tile of tiles) {
@@ -125,7 +137,25 @@ const gameManager = (function () {
         tiles[i] = "";
       }
     };
-    return { init, markTile, getTile, getTiles, check, reset, draw };
+    const isFull = function () {
+      for (let i = 0; i < 9; i++) {
+        if (tiles[i] === "") {
+          return false;
+        }
+      }
+      return true;
+    };
+    return {
+      init,
+      markTile,
+      unMark,
+      getTile,
+      getTiles,
+      check,
+      reset,
+      draw,
+      isFull,
+    };
   })();
 
   const NormalPlayer = function (name, marker, AI) {
@@ -135,31 +165,104 @@ const gameManager = (function () {
     return { getMarker, getName, isAI };
   };
 
-  const AIPlayer = function (name, marker, AI) {
+  const AIPlayer = function (name, marker, AI, difficulty) {
+    const EASY_MODE = "easy";
+    const HARD_MODE = "hard";
     const { getMarker, getName, isAI } = NormalPlayer(name, marker, AI);
-    const markTile = (tiles) => {
-      let index = 0;
-      while (tiles[index] !== "") {
-        index = Math.floor(Math.random() * 9);
+    const getOtherMarker = () => {
+      return getMarker() === "X" ? "O" : "X";
+    }
+    const markTile = (function () {
+      switch(difficulty) {
+        case EASY_MODE:
+          return function(gameBoard) {
+            const tiles = gameBoard.getTiles();
+            let index = 0;
+            while (tiles[index] !== "") {
+              index = Math.floor(Math.random() * 9);
+            }
+            return index;
+          };
+        case HARD_MODE:
+          return function(gameBoard) {
+            const tiles = gameBoard.getTiles();
+            let index = -1;
+            let bestVal = -1000;
+            for(let i = 0; i < 9; i++) {
+              if(tiles[i] !== "") {
+                continue;
+              }
+              gameBoard.markTile(getMarker(), i);
+              const val = minimax(0, gameBoard, false);
+              gameBoard.unMark(i);
+              if(val > bestVal) {
+                bestVal = val;
+                index = i;
+              }
+            }
+            return index;
+          }
       }
-      return index;
+    })();
+    const evaluate = function (gameBoard) {
+      const value = gameBoard.check();
+      if (!value) {
+        return 0;
+      }
+      return value === getMarker() ? 10 : -10;
+    };
+    const minimax = function (depth, gameBoard, isMax) {
+      const value = evaluate(gameBoard);
+      if (value != 0) {
+        return value + (isMax ? -1 : 1) * depth;
+      }
+      if (gameBoard.isFull()) {
+        return 0;
+      }
+      const tiles = gameBoard.getTiles();
+      const marker = isMax ? getMarker() : getOtherMarker();
+      if(isMax) {
+        let best = -1000;
+        for(let i = 0; i < 9; i++) {
+          if(tiles[i] !== "") continue;
+          gameBoard.markTile(marker, i);
+          best = Math.max(best, minimax(depth + 1, gameBoard, !isMax));
+          gameBoard.unMark(i);
+        }
+        return best;
+      } else {
+        let worst = 1000;
+        for(let i = 0; i < 9; i++) {
+          if(tiles[i] !== "") continue;
+          gameBoard.markTile(marker, i);
+          worst = Math.min(worst, minimax(depth + 1, gameBoard, !isMax));
+          gameBoard.unMark(i);
+        }
+        return worst;
+      }
     };
     return { getMarker, getName, isAI, markTile };
   };
 
-  const PlayerFactory = function (name, marker, isAI) {
+  const PlayerFactory = function (name, marker, isAI, difficulty) {
     return isAI
-      ? AIPlayer(name, marker, isAI)
+      ? AIPlayer(name, marker, isAI, difficulty)
       : NormalPlayer(name, marker, isAI);
   };
 
-  const DEFAULT_PLAYER = PlayerFactory("X", "X", false);
+  let DEFAULT_PLAYER = null;
   let OPTIONAL_PLAYER = null;
   let currentPlayer = DEFAULT_PLAYER;
 
-  const createOptionalPlayer = function (option) {
-    OPTIONAL_PLAYER = PlayerFactory("O", "O", option === "AI");
-    currentPlayer = DEFAULT_PLAYER;
+  const firstPlayer = function () {
+    return DEFAULT_PLAYER.getMarker() === "X" ? DEFAULT_PLAYER : OPTIONAL_PLAYER;
+  } 
+
+  const createPlayers = function ( option, playerMarker, difficulty) {
+    const otherMarker = playerMarker === "O" ? "X" : "O";
+    DEFAULT_PLAYER = PlayerFactory(playerMarker, playerMarker, false)
+    OPTIONAL_PLAYER = PlayerFactory(otherMarker, otherMarker, option === "AI", difficulty);
+    currentPlayer = firstPlayer();
   };
 
   const changeCurrentPlayer = function () {
@@ -170,7 +273,7 @@ const gameManager = (function () {
   const markTile = function (index) {
     gameBoard.markTile(currentPlayer.getMarker(), index);
     inGameDisplay.markTile(currentPlayer.getMarker(), index);
-    if (gameBoard.check() || gameBoard.draw()) {
+    if (!!gameBoard.check() || gameBoard.draw()) {
       inGameDisplay.announceResult(
         gameBoard.draw() ? null : currentPlayer.getName()
       );
@@ -180,16 +283,16 @@ const gameManager = (function () {
     }
     changeCurrentPlayer();
     if (currentPlayer.isAI()) {
-      const index = currentPlayer.markTile(gameBoard.getTiles());
+      const index = currentPlayer.markTile(gameBoard);
       markTile(index);
     }
   };
-
+  
   const reset = function () {
     inGameDisplay.reset();
     gameBoard.reset();
     inGameDisplay.addOnClickHandler(tileOnClick);
-    currentPlayer = DEFAULT_PLAYER;
+    currentPlayer = firstPlayer();
   };
 
   const tileOnClick = function (e) {
@@ -201,16 +304,22 @@ const gameManager = (function () {
     markTile(index);
   };
 
-  const playerCardOnClick = function () {
+  const playerCardOnClick = function (e) {
     menuDisplay.hideMenuDisplay();
     inGameDisplay.showInGameDisplay();
-    createOptionalPlayer(this.getAttribute("data-type"));
+    createPlayers(this.getAttribute("data-type"), menuDisplay.getMarker(), menuDisplay.getDifficulty());
+    if (currentPlayer.isAI()) {
+      const index = currentPlayer.markTile(gameBoard);
+      markTile(index);
+    }
+    e.stopPropagation();
   };
 
-  const returnBtnOnClick = function () {
+  const returnBtnOnClick = function (e) {
     reset();
     menuDisplay.showMenuDisplay();
     inGameDisplay.hideInGameDisplay();
+    e.stopPropagation();
   };
 
   const init = function () {

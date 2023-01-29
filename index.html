@@ -11,7 +11,14 @@
   <body>
     <header class="title">Tic-Tac-Toe</header>
     <div class="content" id="menu">
-      Choose your opponent
+      <div class="marker-opt-container">
+        Choose your marker:
+        <input type="radio" name="marker" value="O" id="O"/>
+        <label for="O">O</label>
+        <input type="radio" name="marker" value="X" id="X" checked/>
+        <label for="X">X</label>
+      </div>
+      Choose your opponent:
       <div class="card-container">
         <div class="player-card scale" data-type="human">
           <img src="img/human.png" alt="" />
@@ -19,7 +26,21 @@
         </div>
         <div class="player-card scale" data-type="AI">
           <img src="img/ai.png" alt="" />
-          <div class="type">AI</div>
+          <div class="AI-opt-container">
+            <div class="type">AI</div>
+            <div class="difficulty-container">
+              <input
+                id="easy"
+                type="radio"
+                name="difficulty"
+                value="easy"
+                checked
+              />
+              <label for="easy">Easy</label>
+              <input id="hard" type="radio" name="difficulty" value="hard" />
+              <label for="hard">Hard</label>
+            </div>
+          </div>
         </div>
       </div>
     </div>

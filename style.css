@@ -145,7 +145,7 @@ body {
   background-color: var(--bg-color);
 
   font-family: var(--main-font);
-  font-size: 3rem;
+  font-size: 2.5rem;
   color: var(--font-color)
 }
 .title {
@@ -176,7 +176,7 @@ a:link, a:visited {
   display: flex;
   flex-flow: column nowrap;
   align-items: center;
-  gap: 4rem;
+  gap: 2rem;
 }
 .card-container {
   display: flex;
@@ -194,11 +194,53 @@ a:link, a:visited {
   display: flex;
   flex-flow: column nowrap;
   align-items: center;
-  justify-content: space-between;
+  gap: 2rem;
 }
 .player-card > img {
-  height: 80%;
+  height: 70%;
   width: auto;
+}
+.difficulty-container {
+  display: flex;
+  flex-flow: row nowrap;
+  width: 100%;
+  justify-content: space-around;
+}
+input[type="radio"] {
+  display: none;
+}
+label {
+  text-align: center;
+}
+input[type="radio"][value="hard"]:checked + label,
+input[type="radio"][value="hard"] + label:hover {
+  color: #F24333;
+}
+input[type="radio"][value="easy"]:checked + label,
+input[type="radio"][value="easy"] + label:hover {
+  color: #E6F8B2;
+}
+input[type="radio"] + label {
+  transition: all 0.4s ease-in-out;
+}
+input[type="radio"] + label:hover {
+  transform: scale(1.3);
+  transition: all 0.4s ease-in-out;
+}
+.marker-opt-container {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 1rem;
+}
+input[type="radio"]:checked + label {
+  color: #E6F8B2;
+}
+.AI-opt-container {
+  display: flex;
+  flex-flow: column nowrap;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
 }
 /*--- ingame ---*/
 #in-game {
