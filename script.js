@@ -7,12 +7,16 @@ const gameManager = (function () {
     };
     const hideMenuDisplay = () => (menu.style.display = "none");
     const showMenuDisplay = () => (menu.style.display = "flex");
-    const getDifficulty = function() {
-      return document.querySelector("input[type='radio'][name='difficulty']:checked").value;
-    }
+    const getDifficulty = function () {
+      return document.querySelector(
+        "input[type='radio'][name='difficulty']:checked"
+      ).value;
+    };
     const getMarker = function () {
-      return document.querySelector("input[type='radio'][name='marker']:checked").value;
-    }
+      return document.querySelector(
+        "input[type='radio'][name='marker']:checked"
+      ).value;
+    };
     return {
       hideMenuDisplay,
       showMenuDisplay,
@@ -56,7 +60,7 @@ const gameManager = (function () {
     const showRestartButton = function () {
       restartButton.style.visibility = "visible";
     };
-    const addResetHandler = function (func) {
+    const addRestartHandler = function (func) {
       restartButton.addEventListener("click", func);
     };
     const addTransitionHandler = function (func) {
@@ -76,7 +80,7 @@ const gameManager = (function () {
       announceResult,
       reset,
       showRestartButton,
-      addResetHandler,
+      addRestartHandler,
       hideInGameDisplay,
       showInGameDisplay,
       addTransitionHandler,
@@ -171,11 +175,11 @@ const gameManager = (function () {
     const { getMarker, getName, isAI } = NormalPlayer(name, marker, AI);
     const getOtherMarker = () => {
       return getMarker() === "X" ? "O" : "X";
-    }
+    };
     const markTile = (function () {
-      switch(difficulty) {
+      switch (difficulty) {
         case EASY_MODE:
-          return function(gameBoard) {
+          return function (gameBoard) {
             const tiles = gameBoard.getTiles();
             let index = 0;
             while (tiles[index] !== "") {
@@ -184,24 +188,24 @@ const gameManager = (function () {
             return index;
           };
         case HARD_MODE:
-          return function(gameBoard) {
+          return function (gameBoard) {
             const tiles = gameBoard.getTiles();
             let index = -1;
             let bestVal = -1000;
-            for(let i = 0; i < 9; i++) {
-              if(tiles[i] !== "") {
+            for (let i = 0; i < 9; i++) {
+              if (tiles[i] !== "") {
                 continue;
               }
               gameBoard.markTile(getMarker(), i);
               const val = minimax(0, gameBoard, false);
               gameBoard.unMark(i);
-              if(val > bestVal) {
+              if (val > bestVal) {
                 bestVal = val;
                 index = i;
               }
             }
             return index;
-          }
+          };
       }
     })();
     const evaluate = function (gameBoard) {
@@ -221,10 +225,10 @@ const gameManager = (function () {
       }
       const tiles = gameBoard.getTiles();
       const marker = isMax ? getMarker() : getOtherMarker();
-      if(isMax) {
+      if (isMax) {
         let best = -1000;
-        for(let i = 0; i < 9; i++) {
-          if(tiles[i] !== "") continue;
+        for (let i = 0; i < 9; i++) {
+          if (tiles[i] !== "") continue;
           gameBoard.markTile(marker, i);
           best = Math.max(best, minimax(depth + 1, gameBoard, !isMax));
           gameBoard.unMark(i);
@@ -232,8 +236,8 @@ const gameManager = (function () {
         return best;
       } else {
         let worst = 1000;
-        for(let i = 0; i < 9; i++) {
-          if(tiles[i] !== "") continue;
+        for (let i = 0; i < 9; i++) {
+          if (tiles[i] !== "") continue;
           gameBoard.markTile(marker, i);
           worst = Math.min(worst, minimax(depth + 1, gameBoard, !isMax));
           gameBoard.unMark(i);
@@ -255,13 +259,20 @@ const gameManager = (function () {
   let currentPlayer = DEFAULT_PLAYER;
 
   const firstPlayer = function () {
-    return DEFAULT_PLAYER.getMarker() === "X" ? DEFAULT_PLAYER : OPTIONAL_PLAYER;
-  } 
+    return DEFAULT_PLAYER.getMarker() === "X"
+      ? DEFAULT_PLAYER
+      : OPTIONAL_PLAYER;
+  };
 
-  const createPlayers = function ( option, playerMarker, difficulty) {
+  const createPlayers = function (option, playerMarker, difficulty) {
     const otherMarker = playerMarker === "O" ? "X" : "O";
-    DEFAULT_PLAYER = PlayerFactory(playerMarker, playerMarker, false)
-    OPTIONAL_PLAYER = PlayerFactory(otherMarker, otherMarker, option === "AI", difficulty);
+    DEFAULT_PLAYER = PlayerFactory(playerMarker, playerMarker, false);
+    OPTIONAL_PLAYER = PlayerFactory(
+      otherMarker,
+      otherMarker,
+      option === "AI",
+      difficulty
+    );
     currentPlayer = firstPlayer();
   };
 
@@ -287,7 +298,7 @@ const gameManager = (function () {
       markTile(index);
     }
   };
-  
+
   const reset = function () {
     inGameDisplay.reset();
     gameBoard.reset();
@@ -305,9 +316,16 @@ const gameManager = (function () {
   };
 
   const playerCardOnClick = function (e) {
+    if (e.target.classList.contains("stop-onclick")) {
+      return;
+    }
     menuDisplay.hideMenuDisplay();
     inGameDisplay.showInGameDisplay();
-    createPlayers(this.getAttribute("data-type"), menuDisplay.getMarker(), menuDisplay.getDifficulty());
+    createPlayers(
+      this.getAttribute("data-type"),
+      menuDisplay.getMarker(),
+      menuDisplay.getDifficulty()
+    );
     if (currentPlayer.isAI()) {
       const index = currentPlayer.markTile(gameBoard);
       markTile(index);
@@ -322,11 +340,19 @@ const gameManager = (function () {
     e.stopPropagation();
   };
 
+  const restartBtnOnClick = function (e) {
+    reset();
+    if (currentPlayer.isAI()) {
+      const index = currentPlayer.markTile(gameBoard);
+      markTile(index);
+    }
+  };
+
   const init = function () {
     gameBoard.init();
     inGameDisplay.init();
     menuDisplay.addTransitionHandler(playerCardOnClick);
-    inGameDisplay.addResetHandler(reset);
+    inGameDisplay.addRestartHandler(restartBtnOnClick);
     inGameDisplay.addTransitionHandler(returnBtnOnClick);
     inGameDisplay.addOnClickHandler(tileOnClick);
   };

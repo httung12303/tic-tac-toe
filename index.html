@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tic-Tac-Toe</title>
     <link rel="stylesheet" href="style.css" />
-    <link rel="shortcut icon" href="img/tic-tac-toe.png" type="image/x-icon">
+    <link rel="shortcut icon" href="img/tic-tac-toe.png" type="image/x-icon" />
     <script src="script.js" defer></script>
   </head>
   <body>
@@ -14,9 +14,9 @@
     <div class="content" id="menu">
       <div class="marker-opt-container">
         Choose your marker:
-        <input type="radio" name="marker" value="O" id="O"/>
+        <input type="radio" name="marker" value="O" id="O" />
         <label for="O">O</label>
-        <input type="radio" name="marker" value="X" id="X" checked/>
+        <input type="radio" name="marker" value="X" id="X" checked />
         <label for="X">X</label>
       </div>
       Choose your opponent:
@@ -35,11 +35,18 @@
                 type="radio"
                 name="difficulty"
                 value="easy"
+
                 checked
               />
-              <label for="easy">Easy</label>
-              <input id="hard" type="radio" name="difficulty" value="hard" />
-              <label for="hard">Hard</label>
+              <label for="easy" class="stop-onclick">Easy</label>
+              <input
+                id="hard"
+                type="radio"
+                name="difficulty"
+                value="hard"
+                
+              />
+              <label for="hard" class="stop-onclick">Hard</label>
             </div>
           </div>
         </div>
