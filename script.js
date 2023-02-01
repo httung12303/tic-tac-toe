@@ -31,7 +31,7 @@ const gameManager = (function () {
     const resultElement = document.getElementById("result");
     const restartButton = document.getElementById("restart-button");
     const returnButton = document.getElementById("return-button");
-    let onClick = null;
+    const onClick = null;
     const tiles = [];
     const init = function () {
       const boardElement = document.querySelector("#game-board");
@@ -117,19 +117,20 @@ const gameManager = (function () {
       [2, 4, 6],
     ];
     const check = function () {
-      for (let line of lines) {
+      for (const line of lines) {
         const marker = tiles[line[0]];
         if (
           tiles[line[0]] !== "" &&
           tiles[line[0]] === tiles[line[1]] &&
           tiles[line[1]] === tiles[line[2]]
-        )
+        ) {
           return marker;
+        }
       }
       return null;
     };
     const draw = function () {
-      for (let tile of tiles) {
+      for (const tile of tiles) {
         if (tile === "") {
           return false;
         }
@@ -173,9 +174,7 @@ const gameManager = (function () {
     const EASY_MODE = "easy";
     const HARD_MODE = "hard";
     const { getMarker, getName, isAI } = NormalPlayer(name, marker, AI);
-    const getOtherMarker = () => {
-      return getMarker() === "X" ? "O" : "X";
-    };
+    const getOtherMarker = () => (getMarker() === "X" ? "O" : "X");
     const markTile = (function () {
       switch (difficulty) {
         case EASY_MODE:
@@ -206,6 +205,7 @@ const gameManager = (function () {
             }
             return index;
           };
+        default:
       }
     })();
     const evaluate = function (gameBoard) {
@@ -217,7 +217,7 @@ const gameManager = (function () {
     };
     const minimax = function (depth, gameBoard, isMax) {
       const value = evaluate(gameBoard);
-      if (value != 0) {
+      if (value !== 0) {
         return value + (isMax ? -1 : 1) * depth;
       }
       if (gameBoard.isFull()) {
@@ -234,18 +234,22 @@ const gameManager = (function () {
           gameBoard.unMark(i);
         }
         return best;
-      } else {
-        let worst = 1000;
-        for (let i = 0; i < 9; i++) {
-          if (tiles[i] !== "") continue;
-          gameBoard.markTile(marker, i);
-          worst = Math.min(worst, minimax(depth + 1, gameBoard, !isMax));
-          gameBoard.unMark(i);
-        }
-        return worst;
       }
+      let worst = 1000;
+      for (let i = 0; i < 9; i++) {
+        if (tiles[i] !== "") continue;
+        gameBoard.markTile(marker, i);
+        worst = Math.min(worst, minimax(depth + 1, gameBoard, !isMax));
+        gameBoard.unMark(i);
+      }
+      return worst;
     };
-    return { getMarker, getName, isAI, markTile };
+    return {
+      getMarker,
+      getName,
+      isAI,
+      markTile,
+    };
   };
 
   const PlayerFactory = function (name, marker, isAI, difficulty) {
@@ -356,5 +360,8 @@ const gameManager = (function () {
     inGameDisplay.addTransitionHandler(returnBtnOnClick);
     inGameDisplay.addOnClickHandler(tileOnClick);
   };
-  init();
+
+  return { init };
 })();
+
+gameManager.init();

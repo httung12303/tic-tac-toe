@@ -247,7 +247,7 @@ input[type="radio"]:checked + label {
   display: none;
   flex-flow: column nowrap;
   align-items: center;
-  justify-content: space-between;
+  gap: 2rem;
 }
 #game-board {
   display: grid;
